@@ -1,0 +1,1 @@
+ cat SraRunTable.txt | xargs fastq-dump {} --split-table -gzip

@@ -1,0 +1,144 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(dada2)
+pass <- function(x){x}
+```
+
+To download the data, you should run the script `PullFastqFromSRA.sh`
+
+Data from SRA have serial numbers that are different from the file names to which I am accustomed.
+
+Pull in metadata
+
+```{r}
+SRA_Data <- read_csv("SraRunTable.csv")
+```
+
+Make some tables that are useful for data processing
+```{r}
+keyA1 <- SRA_Data %>% select(JacobName = `Library Name`, SRAName = Run) %>%
+  separate(JacobName, into = c(NA, "Project", "Strain", "Treatment", "Group", "Run"), sep = "_", remove = FALSE)
+keyA2 <- keyA1 %>%
+  expand_grid(ReadDir = c(1,2)) %>%
+  mutate(JacobName2 = paste0(JacobName, "_R", ReadDir),
+         SRAName2 = paste0(SRAName, "_", ReadDir),
+         JacobFile = paste0(JacobName2, ".fastq.gz"),
+         SRAFile = paste0(SRAName2, ".fastq.gz")
+         )
+keyA2
+```
+
+Add paths so I can tell various steps where files go and what to call them
+```{r}
+keyA3 <- keyA2 %>%
+  mutate(TrimmedPath = str_c("Trimmed/", JacobName2, "_trimmed.fastq.gz")) %>%
+  mutate(FilteredPath = str_c("Filtered/", JacobName2, "_filtered.fastq.gz")) %>%
+  mutate(DerepPath = str_c("Derep/", JacobName2, "_derep.fastq.gz"))
+```
+
+
+
+For primer trimming, I need a file of sample names
+
+```{r}
+write_lines(keyA2$JacobName, "samples.txt")
+```
+
+Rename all of the files
+
+First clear the renamed directory, if it contains any files
+
+```{r}
+do.call(file.remove, list(list.files("Renamed", full.names = "TRUE")))
+```
+Then copy the files to the renamed directory with their new names
+```{r}
+didCopy <- file.copy(paste0("SRA_Readfiles/", keyA2$SRAFile),paste0("Renamed/", keyA2$JacobFile))
+didCopy
+```
+
+This should be a vector of TRUEs. If it isn't its likely that not all of the SRA files downloaded.
+
+
+
+# Run Cutadapt
+I need to have cutadapt loaded before I run rstudio on my machine for this to work
+
+```{bash}
+<!-- for sample in $(cat samples.txt) -->
+<!-- do -->
+
+<!--     echo "On sample: $sample" -->
+
+<!--     cutadapt -a ^GTGYCAGCMGCCGCGGTAA...AAACTYAAAKRAATTGRCGG \ -->
+<!-- -A ^CCGYCAATTYMTTTRAGTTT...TTACCGCGGCKGCTGRCAC \ -->
+<!--  -m 200 --discard-untrimmed \ -->
+<!--     -o Trimmed/${sample}_R1_trimmed.fastq.gz -p Trimmed/${sample}_R2_trimmed.fastq.gz \ -->
+<!--     Renamed/${sample}_R1.fastq.gz Renamed/${sample}_R2.fastq.gz \ -->
+<!--     >> cutadapt_primer_trimming_stats.txt 2>&1 -->
+<!-- done -->
+```
+
+## Plot Errors
+
+We are going to plot the Wild Fed A from the non-crash project, which was run twice, once with other on-crash samples and once wiht the crash samples. And the Wild Fed A from the crash projet.
+```{r}
+toPlot <- keyA3 %>% 
+  filter(Strain == "Wild", Treatment == "Fed", Group == "A")
+toPlotFwd <- toPlot %>%
+  filter(ReadDir == 1) %>%
+  pull(TrimmedPath)
+toPlotRev <- toPlot %>%
+  filter(ReadDir == 2) %>%
+  pull(TrimmedPath)
+```
+
+Forward reads
+```{r, fig.width = 8, fig.height = 4}
+plotQualityProfile(toPlotFwd) +theme(strip.text = element_text(size = 7))
+```
+These are, form lef tto right. Non-crash sample, first run. Non crash sample final run (with crash samples). Crash sample, final run (with crash samples).
+
+Reverse reads
+
+```{r, fig.width = 8, fig.height = 4}
+plotQualityProfile(toPlotFwd) +theme(strip.text = element_text(size = 7))
+```
+
+# Filtering files
+
+We can filter everything in one batch, but we have to do dada2 and learn errors on two batches, one for each run.
+
+Based on the above proviles, I'm going to allow three errors on the forward read and five on the reverse read.
+
+First, I need to get the names of the forward and reverse read files
+
+```{r}
+files_to_filter <- keyA3 %>%
+  select(Project:ReadDir, TrimmedPath, FilteredPath) %>%
+  filter(Strain == "Wild", Treatment == "Fed", Group == "A") %>% # Debugging
+  pivot_longer(cols = contains("Path"), names_to = "PathType", values_to = "Path") %>%
+  mutate(cname = str_c(PathType, "_R", ReadDir)) %>%
+  select(-PathType, -ReadDir) %>%
+  pivot_wider(names_from = cname, values_from = "Path") %>%
+  pass
+```
+
+Do the filtering
+
+```{r}
+pt0 <- proc.time()
+filtered <- filterAndTrim(fwd  = files_to_filter$TrimmedPath_R1,
+                          filt = files_to_filter$FilteredPath_R1,
+                          rev  = files_to_filter$TrimmedPath_R2,
+                          filt.rev  = files_to_filter$FilteredPath_R2,
+                          maxEE=c(3,5),
+                          rm.phix=TRUE, minLen=175, truncLen=c(230,220))
+pt1 <- proc.time()
+pt1 - pt0
+```
