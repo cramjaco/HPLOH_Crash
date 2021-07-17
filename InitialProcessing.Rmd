@@ -9,6 +9,12 @@ library(dada2)
 pass <- function(x){x}
 ```
 
+```{r}
+packageVersion("dada2
+               ")
+```
+
+
 To download the data, you should run the script `PullFastqFromSRA.sh`
 
 Data from SRA have serial numbers that are different from the file names to which I am accustomed.
@@ -69,6 +75,7 @@ This should be a vector of TRUEs. If it isn't its likely that not all of the SRA
 # Run Cutadapt
 I need to have cutadapt loaded before I run rstudio on my machine for this to work
 
+The following is commented out since it takes a while, I may uncomment once I have things working for a full path.
 ```{bash}
 <!-- for sample in $(cat samples.txt) -->
 <!-- do -->
