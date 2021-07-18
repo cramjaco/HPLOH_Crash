@@ -10,8 +10,7 @@ pass <- function(x){x}
 ```
 
 ```{r}
-packageVersion("dada2
-               ")
+packageVersion("dada2")
 ```
 
 
@@ -128,7 +127,7 @@ First, I need to get the names of the forward and reverse read files
 ```{r}
 files_to_filter <- keyA3 %>%
   select(Project:ReadDir, TrimmedPath, FilteredPath) %>%
-  filter(Strain == "Wild", Treatment == "Fed", Group == "A") %>% # Debugging
+  #filter(Strain == "Wild", Treatment == "Fed", Group == "A") %>% # Debugging
   pivot_longer(cols = contains("Path"), names_to = "PathType", values_to = "Path") %>%
   mutate(cname = str_c(PathType, "_R", ReadDir)) %>%
   select(-PathType, -ReadDir) %>%
@@ -149,3 +148,28 @@ filtered <- filterAndTrim(fwd  = files_to_filter$TrimmedPath_R1,
 pt1 <- proc.time()
 pt1 - pt0
 ```
+
+```{r}
+write_csv(keyA3, "keyA3.csv")
+write_csv(files_to_filter , "files_for_learning_errors.csv")
+```
+
+Then run LearningErrors.R
+
+```{bash}
+Rscript LearningErrors.R
+```
+
+```{bash}
+Rscript DerepAll.R
+```
+
+```{bash}
+Rscript DadaAll.R
+```
+
+```{bash}
+Rscript MergeAndTableify.R
+```
+
+
