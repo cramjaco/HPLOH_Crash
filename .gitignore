@@ -50,6 +50,8 @@ renv/library/*
 # Fastq files
 *.fastq.gz
 *.fastq
+*.fa.gz
 
 # Big files
 *.RData
+*.Rdata

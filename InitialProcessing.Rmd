@@ -38,6 +38,14 @@ keyA2 <- keyA1 %>%
 keyA2
 ```
 
+For the phyloseq object
+```{r}
+keyA1 %>%
+  select(Sample = JacobName, Project:Run) %>% 
+  write_csv("sample_data.csv")
+```
+
+
 Add paths so I can tell various steps where files go and what to call them
 ```{r}
 keyA3 <- keyA2 %>%
@@ -171,5 +179,21 @@ Rscript DadaAll.R
 ```{bash}
 Rscript MergeAndTableify.R
 ```
+
+```{bash}
+Rscript GetTaxa.R
+```
+
+
+```{bash}
+Rscript MakePhyloseqIngredients.R
+```
+
+```{bash}
+Rscript MakePhyloseqObject.R
+```
+
+
+
 
 
