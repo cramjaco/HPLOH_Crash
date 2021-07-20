@@ -22,4 +22,8 @@ Most remaining steps are carried out in the R markdown file
 
 Package managment is provided by the `renv` library, which should install software automatically when you first load R in this directory. However, if that doesn't happen, you may need to install renv and then run `renv::restore()`
 
-The script generates some text files that tells which files are which and are usefull in some of the other functions. It also allows one to run several different .R files
+The script generates some text files that tells which files are which and are usefull in some of the other functions. It uses bash code blocks to run some scripts from the command line, including R scripts.
+
+Finally one can run 
+`SecondaryProcessingAndAnalysis.Rmd` 
+This re-generates the figure from the manuscript, and all analyses cited therein.
