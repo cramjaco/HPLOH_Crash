@@ -2,7 +2,7 @@ library(tidyverse)
 library(dada2)
 pass <- function(x){x}
 
-source("MetaCrashLibrary.R")
+source("PersonalLibraries/MetaCrashLibrary.R")
 
 
 load("dada_all.RData")
@@ -32,7 +32,7 @@ merged_all <- dada_all %>%
 
 rm(dada_all)
 
-save(merged_all, file = "merged_all.Rdata")
+save(merged_all, file = "IntermediateData/merged_all.Rdata")
 
 st_all <- merged_all %>%
   select(Run, merged) %>%
@@ -43,5 +43,5 @@ combined_seqtab <- mergeSequenceTables(tables = st_all$seqtab)
 
 seqtab_nochim <- removeBimeraDenovo(combined_seqtab, verbose = T)
 
-save(combined_seqtab, seqtab_nochim, file = "seqtab_both.RData")
+save(combined_seqtab, seqtab_nochim, file = "IntermediateData/seqtab_both.RData")
 

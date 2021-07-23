@@ -1,7 +1,7 @@
 library(dada2)
 library(tidyverse)
 # Check for primer problems
-load("seqtab_both.RData")
+load("IntermediateData/seqtab_both.RData")
 sum(seqtab_nochim)/sum(combined_seqtab)
 # 0.9989
 # those are remarkably few chimeras
@@ -14,7 +14,7 @@ taxa <- assignTaxonomy(seqtab_nochim, "Reference/silva_nr_v132_train_set.fa.gz",
                        tryRC=T,
                        multithread = TRUE)
 
-save(seqtab_nochim, taxa, file = "sequence_table_and_taxa.RData")
+save(seqtab_nochim, taxa, file = "IntermediateData/sequence_table_and_taxa.RData")
 
 
 

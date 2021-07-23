@@ -2,7 +2,7 @@ library(tidyverse)
 library(dada2)
 packageVersion("dada2")
 
-files_to_filter <- read_csv("files_for_learning_errors.csv")
+files_to_filter <- read_csv("IntermediateData/files_for_learning_errors.csv")
 
 nb = 1e8 # minimum number of bases
 mt = TRUE
@@ -19,4 +19,4 @@ err_forward_all <- files_to_filter %>%
                                               randomize = TRUE,
                                               multithread = mt)))
 
-save(files_to_filter, nb, err_forward_all, file = "LearningErrorsResults.RData")
+save(files_to_filter, nb, err_forward_all, file = "IntermediateData/LearningErrorsResults.RData")

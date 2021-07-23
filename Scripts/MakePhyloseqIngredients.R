@@ -20,7 +20,7 @@ seqinr::write.fasta(sequences = as.list(asv_seqs), names = asv_headers, file.out
 asv_seqs_tib <- tibble(asv = asv_headers, seqs = asv_seqs)
 write_csv(asv_seqs_tib, "asv_seqs.csv")
 
-moo <- read.fasta("ASVs.fa")
+moo <- read.fasta("UsefulData/ASVs.fa")
 #write(asv_fasta, "ASVs.fa")
 
   # count table:
@@ -28,10 +28,10 @@ asv_tab <- t(seqtab_nochim)
 colnames(asv_tab) <- colnames(asv_tab) %>% str_remove("_R1_filtered.fastq.gz")
 
 row.names(asv_tab) <- sub(">", "", asv_headers)
-write.table(asv_tab, "ASVs_counts.tsv", sep="\t", quote=F, col.names=NA)
+write.table(asv_tab, "UsefulData/ASVs_counts.tsv", sep="\t", quote=F, col.names=NA)
 
   # tax table:
 asv_tax <- taxa
 row.names(asv_tax) <- sub(">", "", asv_headers)
 
-write.table(asv_tax, "ASVs_taxonomy.tsv", sep="\t", quote=F, col.names=NA)
+write.table(asv_tax, "UsefulData/ASVs_taxonomy.tsv", sep="\t", quote=F, col.names=NA)

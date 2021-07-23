@@ -2,7 +2,7 @@ library(tidyverse)
 library(dada2)
 pass <- function(x){x}
 
-load("dada2_run_backup.RData")
+load("IntermediteData/dada2_run_backup.RData")
 
 mt = TRUE
 
@@ -18,4 +18,4 @@ dada_all <- derep_all %>%
   
   pass
 
-save(dada_all, file = "dada_all.RData")
+save(dada_all, file = "IntermediateData/dada_all.RData")

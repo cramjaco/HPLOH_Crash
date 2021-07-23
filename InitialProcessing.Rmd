@@ -21,7 +21,7 @@ Data from SRA have serial numbers that are different from the file names to whic
 Pull in metadata
 
 ```{r}
-SRA_Data <- read_csv("SraRunTable.csv")
+SRA_Data <- read_csv("IntermediateData/SraRunTable.csv")
 ```
 
 Make some tables that are useful for data processing
@@ -42,7 +42,7 @@ For the phyloseq objectdada
 ```{r}
 keyA1 %>%
   select(Sample = JacobName, Project:Run) %>% 
-  write_csv("sample_data.csv")
+  write_csv("UsefulData/sample_data.csv")
 ```
 
 
@@ -59,7 +59,7 @@ keyA3 <- keyA2 %>%
 For primer trimming, I need a file of sample names
 
 ```{r}
-write_lines(keyA2$JacobName, "samples.txt")
+write_lines(keyA2$JacobName, "IntermediateData/samples.txt")
 ```
 
 Rename all of the files
@@ -84,7 +84,7 @@ I need to have cutadapt loaded before I run rstudio on my machine for this to wo
 
 The following is commented out since it takes a while, I may uncomment once I have things working for a full path.
 ```{bash}
-<!-- for sample in $(cat samples.txt) -->
+<!-- for sample in $(cat IntermediateData/samples.txt) -->
 <!-- do -->
 
 <!--     echo "On sample: $sample" -->
@@ -158,18 +158,23 @@ pt1 - pt0
 ```
 
 ```{r}
-write_csv(keyA3, "keyA3.csv")
-write_csv(files_to_filter , "files_for_learning_errors.csv")
+write_csv(keyA3, "IntermediateData/keyA3.csv")
+write_csv(files_to_filter , "IntermediateData/files_for_learning_errors.csv")
 ```
 
 Then run LearningErrors.R
 
 ```{bash}
-Rscript LearningErrors.R
+Rscript Scripts/TestScript.R
+```
+
+
+```{bash}
+Rscript Scripts/LearningErrors.R
 ```
 
 ```{bash}
-Rscript DerepAll.R
+Rscript Scripts/DerepAll.R
 ```
 
 ```{bash}
