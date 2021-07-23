@@ -72,13 +72,13 @@ psra <- ps %>% transform_sample_counts( function(x) x/sum(x))
 
 Normalize microibal counts to oyster counts
 ```{r}
-ps_oyster <- ps %>% subset_taxa(Order == "Ostreoida")
-ps_not_oyster <- ps %>% subset_taxa(Order != "Ostreoida")
-oyster_sums <- otu_table(ps_oyster)@.Data %>% apply(MARGIN = 2, sum)
-not_oyster_counts <- otu_table(ps_not_oyster)@.Data
-
-over_oyster <- sweep(not_oyster_counts, 2, oyster_sums, "/")
-over_oyster_log10 <- log10(over_oyster)
+# ps_oyster <- ps %>% subset_taxa(Order == "Ostreoida")
+# ps_not_oyster <- ps %>% subset_taxa(Order != "Ostreoida")
+# oyster_sums <- otu_table(ps_oyster)@.Data %>% apply(MARGIN = 2, sum)
+# not_oyster_counts <- otu_table(ps_not_oyster)@.Data
+# 
+# over_oyster <- sweep(not_oyster_counts, 2, oyster_sums, "/")
+# over_oyster_log10 <- log10(over_oyster)
 ```
 
 This is a variance normalizing tranformaiton. Its apparently an alternative to rarifying the data. 
@@ -110,6 +110,8 @@ ps_common
 
 Devide the abundance of each microbial ASV by the host gene copy number. Now microbial genes are reported as ratios to host, rather than counts.
 This process adjusts for compositionality.
+
+Normalize microibal counts to oyster counts
 
 ```{r}
 ps_oyster <- ps_dds %>% subset_taxa(Order == "Ostreoida")

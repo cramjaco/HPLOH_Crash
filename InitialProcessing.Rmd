@@ -38,7 +38,7 @@ keyA2 <- keyA1 %>%
 keyA2
 ```
 
-For the phyloseq object
+For the phyloseq objectdada
 ```{r}
 keyA1 %>%
   select(Sample = JacobName, Project:Run) %>% 
