@@ -6,7 +6,8 @@ output: html_notebook
 # Bring in the phyloseq object
 
 ```{r}
-source("MakePhyloseqObject.R")
+#source("Scripts/MakePhyloseqObject.R")
+load("IntermediateData/larval_phyloseq.RData")
 ```
 
 # Required libraries
@@ -239,7 +240,7 @@ ccaPlot_1V2_B <- ccaPlot_1V2_A +
 
 #plot_grid(ccaPlot_1V2_B, ccaLegend)
 ProtoNewFig <- plot_grid(ccaPlot_1V2_B, ccaLegend, nrow = 2, rel_heights = c(10,1))
-ggsave("ProtoNewFig.svg", ProtoNewFig, width = 8, height = 6)
+ggsave("Figures/ProtoNewFig.svg", ProtoNewFig, width = 8, height = 6)
 ```
 
 ### View Main Figure

@@ -72,16 +72,17 @@
 <text x='341.77' y='202.45' text-anchor='middle' style='font-size: 12.33px; font-family: Arimo;' textLength='10.32px' lengthAdjust='spacingAndGlyphs'>+</text>
 <text x='317.50' y='183.79' text-anchor='middle' style='font-size: 12.33px; font-family: Arimo;' textLength='10.32px' lengthAdjust='spacingAndGlyphs'>+</text>
 <text x='291.88' y='176.69' text-anchor='middle' style='font-size: 12.33px; font-family: Arimo;' textLength='10.32px' lengthAdjust='spacingAndGlyphs'>+</text>
-<line x1='283.08' y1='159.35' x2='283.18' y2='169.50' style='stroke-width: 1.07;' />
-<text x='319.55' y='194.68' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='68.04px' lengthAdjust='spacingAndGlyphs'>Aquimonas_157</text>
-<text x='251.33' y='208.08' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='67.90px' lengthAdjust='spacingAndGlyphs'>SS1-B-06-26_57</text>
-<text x='238.70' y='160.54' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='85.15px' lengthAdjust='spacingAndGlyphs'>Mesorhizobium_104</text>
-<text x='210.62' y='174.04' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='63.42px' lengthAdjust='spacingAndGlyphs'>Chloroplast_13</text>
-<text x='174.94' y='196.27' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='70.56px' lengthAdjust='spacingAndGlyphs'>Motiliproteus_39</text>
-<text x='257.60' y='191.43' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='80.70px' lengthAdjust='spacingAndGlyphs'>Francisellaceae_10</text>
-<text x='364.52' y='208.89' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='73.81px' lengthAdjust='spacingAndGlyphs'>Erythrobacter_21</text>
-<text x='351.55' y='181.26' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='57.99px' lengthAdjust='spacingAndGlyphs'>Chloroplast_2</text>
-<text x='320.82' y='167.83' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='64.75px' lengthAdjust='spacingAndGlyphs'>Arenibacter_68</text>
+<line x1='322.09' y1='190.41' x2='294.96' y2='184.65' style='stroke-width: 1.07;' />
+<line x1='283.16' y1='159.38' x2='283.18' y2='169.50' style='stroke-width: 1.07;' />
+<text x='357.91' y='194.45' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='68.04px' lengthAdjust='spacingAndGlyphs'>Aquimonas_157</text>
+<text x='264.52' y='206.32' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='67.90px' lengthAdjust='spacingAndGlyphs'>SS1-B-06-26_57</text>
+<text x='238.78' y='160.56' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='85.15px' lengthAdjust='spacingAndGlyphs'>Mesorhizobium_104</text>
+<text x='210.41' y='174.02' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='63.42px' lengthAdjust='spacingAndGlyphs'>Chloroplast_13</text>
+<text x='188.17' y='201.22' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='70.56px' lengthAdjust='spacingAndGlyphs'>Motiliproteus_39</text>
+<text x='276.52' y='192.92' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='80.70px' lengthAdjust='spacingAndGlyphs'>Francisellaceae_10</text>
+<text x='364.47' y='208.89' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='73.81px' lengthAdjust='spacingAndGlyphs'>Erythrobacter_21</text>
+<text x='353.01' y='181.01' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='57.99px' lengthAdjust='spacingAndGlyphs'>Chloroplast_2</text>
+<text x='320.70' y='167.58' text-anchor='middle' style='font-size: 8.54px; font-family: Arimo;' textLength='64.75px' lengthAdjust='spacingAndGlyphs'>Arenibacter_68</text>
 <polygon points='108.80,205.15 152.59,205.15 152.50,205.14 152.85,205.13 153.19,205.06 153.52,204.94 153.82,204.76 154.09,204.54 154.32,204.28 154.50,203.99 154.64,203.67 154.72,203.33 154.75,202.99 154.75,202.99 154.75,189.74 154.75,189.74 154.72,189.39 154.64,189.05 154.50,188.73 154.32,188.44 154.09,188.18 153.82,187.96 153.52,187.79 153.19,187.66 152.85,187.59 152.59,187.58 108.80,187.58 109.06,187.59 108.71,187.58 108.37,187.62 108.03,187.72 107.72,187.87 107.43,188.07 107.18,188.31 106.98,188.58 106.81,188.89 106.70,189.22 106.65,189.56 106.64,189.74 106.64,202.99 106.65,202.81 106.65,203.16 106.70,203.50 106.81,203.83 106.98,204.14 107.18,204.42 107.43,204.66 107.72,204.86 108.03,205.01 108.37,205.10 108.71,205.14 ' style='stroke-width: 0.53; fill: #FFC0CB;' />
 <text x='130.70' y='201.55' text-anchor='middle' style='font-size: 14.23px; font-family: Arimo;' textLength='40.91px' lengthAdjust='spacingAndGlyphs'>Crash</text>
 <polygon points='223.81,230.15 257.37,230.15 257.29,230.15 257.63,230.14 257.97,230.07 258.30,229.94 258.60,229.77 258.87,229.55 259.10,229.29 259.29,228.99 259.42,228.68 259.51,228.34 259.53,227.99 259.53,227.99 259.53,214.74 259.53,214.74 259.51,214.40 259.42,214.06 259.29,213.74 259.10,213.45 258.87,213.19 258.60,212.97 258.30,212.79 257.97,212.67 257.63,212.60 257.37,212.58 223.81,212.58 224.07,212.60 223.72,212.58 223.38,212.63 223.04,212.72 222.73,212.87 222.44,213.07 222.19,213.31 221.98,213.59 221.82,213.90 221.71,214.23 221.65,214.57 221.65,214.74 221.65,227.99 221.65,227.82 221.65,228.16 221.71,228.51 221.82,228.84 221.98,229.15 222.19,229.42 222.44,229.66 222.73,229.86 223.04,230.01 223.38,230.11 223.72,230.15 ' style='stroke-width: 0.53; fill: #FFFFFF;' />
