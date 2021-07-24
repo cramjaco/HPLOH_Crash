@@ -2,7 +2,7 @@ library(tidyverse)
 library(dada2)
 pass <- function(x){x}
 
-load("IntermediteData/dada2_run_backup.RData")
+load("IntermediateData/dada2_run_backup.RData")
 
 mt = TRUE
 
