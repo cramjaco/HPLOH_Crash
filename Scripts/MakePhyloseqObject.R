@@ -19,4 +19,4 @@ ps <- phyloseq(
   sd
 )
 
-save(ps, file = "larval_phyloseq.RData")
+save(ps, file = "IntermediateData/larval_phyloseq.RData")

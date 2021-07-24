@@ -3,7 +3,7 @@ library(tidyverse)
 library(phyloseq)
 library(seqinr)
 
-load("sequence_table_and_taxa.RData")
+load("IntermediateData/sequence_table_and_taxa.RData")
 
 # giving our seq headers more manageable names (ASV_1, ASV_2...)
 asv_seqs <- colnames(seqtab_nochim)
@@ -14,13 +14,13 @@ for (i in 1:dim(seqtab_nochim)[2]) {
 }
 
 # making and writing out a fasta of our final ASV seqs:
-seqinr::write.fasta(sequences = as.list(asv_seqs), names = asv_headers, file.out = "ASVs.fa")
+seqinr::write.fasta(sequences = as.list(asv_seqs), names = asv_headers, file.out = "UsefulData/ASVs.fa")
 
 # and a table of sequences
 asv_seqs_tib <- tibble(asv = asv_headers, seqs = asv_seqs)
-write_csv(asv_seqs_tib, "asv_seqs.csv")
+write_csv(asv_seqs_tib, "UsefulData/asv_seqs.csv")
 
-moo <- read.fasta("UsefulData/ASVs.fa")
+#moo <- read.fasta("UsefulData/ASVs.fa")
 #write(asv_fasta, "ASVs.fa")
 
   # count table:
@@ -35,3 +35,4 @@ asv_tax <- taxa
 row.names(asv_tax) <- sub(">", "", asv_headers)
 
 write.table(asv_tax, "UsefulData/ASVs_taxonomy.tsv", sep="\t", quote=F, col.names=NA)
+

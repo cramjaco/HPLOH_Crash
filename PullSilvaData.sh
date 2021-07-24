@@ -1,1 +1,1 @@
-wget References/silva_nr_v132_train_set.fa.gz https://zenodo.org/record/1172783/files/silva_nr_v132_train_set.fa.gz
+wget --directory-prefix=Reference https://zenodo.org/record/1172783/files/silva_nr_v132_train_set.fa.gz
