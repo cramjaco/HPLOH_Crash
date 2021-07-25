@@ -18,7 +18,11 @@ To download the data, you should run the script `PullFastqFromSRA.sh`
 To download the silva daa run PullSilvaData.sh
 
 ```{bash}
-sh PullSilvaData.sh
+sh ScriptsPullFastqFromSRA.sh
+```
+
+```{bash}
+sh Scripts/PullSilvaData.sh
 ```
 
 
@@ -100,7 +104,7 @@ do
  -m 200 --discard-untrimmed \
     -o Trimmed/${sample}_R1_trimmed.fastq.gz -p Trimmed/${sample}_R2_trimmed.fastq.gz \
     Renamed/${sample}_R1.fastq.gz Renamed/${sample}_R2.fastq.gz \
-    >> cutadapt_primer_trimming_stats.txt 2>&1
+    >> IntermediateData/cutadapt_primer_trimming_stats.txt 2>&1
 done
 ```
 
