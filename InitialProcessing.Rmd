@@ -18,7 +18,7 @@ To download the data, you should run the script `PullFastqFromSRA.sh`
 To download the silva daa run PullSilvaData.sh
 
 ```{bash}
-sh ScriptsPullFastqFromSRA.sh
+sh Scripts/PullFastqFromSRA.sh
 ```
 
 ```{bash}
@@ -113,7 +113,8 @@ done
 We are going to plot the Wild Fed A from the non-crash project, which was run twice, once with other on-crash samples and once wiht the crash samples. And the Wild Fed A from the crash projet.
 ```{r}
 toPlot <- keyA3 %>% 
-  filter(Strain == "Wild", Treatment == "Fed", Group == "A")
+  #filter(Strain == "Wild", Treatment == "Fed", Group == "A")
+  filter(Strain == "Wild", Treatment == "Fed", Group %in% c("A", "B"))
 toPlotFwd <- toPlot %>%
   filter(ReadDir == 1) %>%
   pull(TrimmedPath)
@@ -126,7 +127,8 @@ Forward reads
 ```{r, fig.width = 8, fig.height = 4}
 plotQualityProfile(toPlotFwd) +theme(strip.text = element_text(size = 7))
 ```
-These are, form lef tto right. Non-crash sample, first run. Non crash sample final run (with crash samples). Crash sample, final run (with crash samples).
+These are, form left to right. Non-crash sample, first run. Non crash sample final run (with crash samples). Crash sample, final run (with crash samples).
+25 July 2021 -- The different samples within the two runs have remarkably similar looking error profiles, though different read numbers. Subtle differences are apparent.
 
 Reverse reads
 
