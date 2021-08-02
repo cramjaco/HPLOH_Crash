@@ -51,6 +51,7 @@ renv/library/*
 *.fastq.gz
 *.fastq
 *.fa.gz
+silva_nr_v132_train_set.fa.gz*
 
 # Big files
 *.RData

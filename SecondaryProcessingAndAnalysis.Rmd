@@ -309,3 +309,10 @@ How many significant and non significant ASVs are there?
 modframe01 %>% ungroup %>% summarise(signif = sum(p.value < 0.01), total = length(p.value)) %>% mutate(frachits = signif/total) 
 ```
 63 % of the asvs are related to treatment p < 0.01.
+
+# Session Info Dump
+
+```{r}
+sessionInfo()
+```
+

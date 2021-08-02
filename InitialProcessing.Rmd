@@ -3,6 +3,15 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+# Start timer
+
+```{r}
+ptm0 <- proc.time()
+```
+
+
+# Load libraries
+
 ```{r}
 library(tidyverse)
 library(dada2)
@@ -210,7 +219,16 @@ Rscript Scripts/MakePhyloseqIngredients.R
 Rscript Scripts/MakePhyloseqObject.R
 ```
 
+# Log session info
+```{r}
+sessionInfo()
+```
 
+# Stop timer
+```{r}
+ptm1 <- proc.time()
+ptm1 - ptm0
+```
 
 
 
