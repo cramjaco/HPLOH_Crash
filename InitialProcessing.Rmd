@@ -28,11 +28,11 @@ To download the data, you should run the script `PullFastqFromSRA.sh`
 To download the silva daa run PullSilvaData.sh
 
 ```{bash}
-sh Scripts/PullFastqFromSRA.sh
+#sh Scripts/PullFastqFromSRA.sh
 ```
 
 ```{bash}
-sh Scripts/PullSilvaData.sh
+#sh Scripts/PullSilvaData.sh
 ```
 
 

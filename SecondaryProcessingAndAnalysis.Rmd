@@ -164,6 +164,10 @@ test_rda_anova
 myScores <- scores(test_rda, choices = c(1:4), scaling = "symmetric")
 ```
 
+```{r}
+test_rda_anova$Variance/sum(test_rda_anova$Variance)
+```
+
 ## Post procesing of RDA
 
 ### Sample Data
