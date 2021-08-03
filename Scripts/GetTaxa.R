@@ -1,5 +1,6 @@
 library(dada2)
 library(tidyverse)
+set.seed(33100)
 # Check for primer problems
 load("IntermediateData/seqtab_both.RData")
 sum(seqtab_nochim)/sum(combined_seqtab)

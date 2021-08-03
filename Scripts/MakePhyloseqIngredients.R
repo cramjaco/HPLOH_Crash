@@ -2,6 +2,7 @@ library(dada2)
 library(tidyverse)
 library(phyloseq)
 library(seqinr)
+set.seed(33100)
 
 load("IntermediateData/sequence_table_and_taxa.RData")
 

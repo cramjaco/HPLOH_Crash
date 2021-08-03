@@ -6,6 +6,7 @@ output: html_notebook
 # Bring in the phyloseq object
 
 ```{r}
+set.seed(33100)
 #source("Scripts/MakePhyloseqObject.R")
 load("IntermediateData/larval_phyloseq.RData")
 ```
@@ -20,9 +21,9 @@ library(ggplot2)
 library(vegan)
 library(ggrepel)
 library(cowplot)
- library(lme4)
+library(lme4)
 library(lmerTest)
- library(broom.mixed)
+library(broom.mixed)
 library(plotly)
 library(tidyverse)
 

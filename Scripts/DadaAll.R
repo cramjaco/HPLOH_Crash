@@ -1,6 +1,7 @@
 library(tidyverse)
 library(dada2)
 pass <- function(x){x}
+set.seed(33100)
 
 load("IntermediateData/dada2_run_backup.RData")
 

@@ -1,6 +1,7 @@
 library(seqinr)
 library(phyloseq)
 library(readr)
+set.seed(33100)
 
 counts <- read.table("UsefulData/ASVs_counts.tsv", sep="\t", header = TRUE, row.names = 1)
 taxa <- read.table("UsefulData/ASVs_taxonomy.tsv", sep="\t", header = TRUE, row.names = 1)

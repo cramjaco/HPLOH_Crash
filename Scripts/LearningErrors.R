@@ -1,6 +1,7 @@
 library(tidyverse)
 library(dada2)
 packageVersion("dada2")
+set.seed(33100)
 
 files_to_filter <- read_csv("IntermediateData/files_for_learning_errors.csv")
 

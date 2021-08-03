@@ -1,6 +1,7 @@
 library(tidyverse)
 library(dada2)
 packageVersion("dada2")
+set.seed(33100)
 
 load("IntermediateData/LearningErrorsResults.RData")
 

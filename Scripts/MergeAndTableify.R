@@ -1,6 +1,7 @@
 library(tidyverse)
 library(dada2)
 pass <- function(x){x}
+set.seed(33100)
 
 source("PersonalLibraries/MetaCrashLibrary.R")
 
