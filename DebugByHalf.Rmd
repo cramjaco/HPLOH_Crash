@@ -1,0 +1,358 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Bring in the phyloseq object
+
+```{r}
+#source("Scripts/MakePhyloseqObject.R")
+load("IntermediateData/larval_phyloseq.RData")
+```
+
+# Required libraries
+
+```{r}
+library(phyloseq)
+library(DESeq2)
+library(dplyr)
+library(ggplot2)
+library(vegan)
+library(ggrepel)
+library(cowplot)
+ library(lme4)
+library(lmerTest)
+ library(broom.mixed)
+library(plotly)
+library(tidyverse)
+
+```
+
+# Better names for taxa
+
+
+
+```{r}
+pull_lowlev <- function(taxaVec){
+  taxaVec <- dplyr::select(Kingdom:Genus)
+  taxaVec <- na.omit(taxaVec)
+  taxaVec[length(taxaVec)]
+}
+
+theTaxa <- ps %>% tax_table() %>% as("matrix") %>% data.frame()  #%>% as.data.frame()
+theTaxa[] <- lapply(theTaxa, as.character)
+theTaxa$ASVNum <- rownames(theTaxa) %>% parse_number
+theTaxa$ASVName <- rownames(theTaxa)
+
+
+myLowist <- theTaxa %>% pivot_longer(Kingdom:Genus) %>% na.omit %>% group_by(ASVName) %>% summarise(Lowist = last(value))
+
+theTaxa <- theTaxa %>% left_join(myLowist, by = "ASVName")
+theTaxa <- theTaxa %>% mutate(JName = str_c(Lowist, ASVNum, sep = "_"))
+theTaxa <- theTaxa %>% column_to_rownames("ASVName")
+head(theTaxa)
+
+
+tt2 <- tax_table(theTaxa)
+rownames(tt2) <- rownames(theTaxa)
+colnames(tt2) <- colnames(theTaxa)
+ps_retax <- ps
+tax_table(ps_retax) <- tt2
+```
+
+Remove blanks
+```{r}
+ps_noblank <- subset_samples(ps_retax, Strain != "Blank")
+ps_plusone <- transform_sample_counts(ps_noblank, function(x) x + 1)
+```
+
+Convert to relative abundance
+```{r}
+psra <- ps %>% transform_sample_counts( function(x) x/sum(x))
+```
+
+Normalize microibal counts to oyster counts
+```{r}
+# ps_oyster <- ps %>% subset_taxa(Order == "Ostreoida")
+# ps_not_oyster <- ps %>% subset_taxa(Order != "Ostreoida")
+# oyster_sums <- otu_table(ps_oyster)@.Data %>% apply(MARGIN = 2, sum)
+# not_oyster_counts <- otu_table(ps_not_oyster)@.Data
+# 
+# over_oyster <- sweep(not_oyster_counts, 2, oyster_sums, "/")
+# over_oyster_log10 <- log10(over_oyster)
+```
+
+This is a variance normalizing tranformaiton. Its apparently an alternative to rarifying the data. 
+```{r}
+deseq_pre <- phyloseq_to_deseq2(ps, design = ~ Project)
+# deseq_counts <- estimateSizeFactors(deseq_pre, type = "poscounts")
+# deseq_counts_vst <- varianceStabilizingTransformation(deseq_counts)
+# vst_trans_count_tab <- assay(deseq_counts_vst)
+
+# Ella on Slack
+#deseq_pre
+dds = deseq_pre[rowSums(counts(deseq_pre)) > 5,]
+dds_esf <- estimateSizeFactors(dds, type = "poscounts")
+dds01 <- DESeq(dds_esf)
+dds_res <- results(dds01)
+
+dds_counts <- counts(dds01, normalized = TRUE)
+
+ps_dds <- ps_retax
+otu_table(ps_dds) <- otu_table(dds_counts, taxa_are_rows = TRUE)
+```
+
+Select only species that show up in at least 20% of the samples. 
+
+```{r}
+ps_common <- filter_taxa(ps_dds, function(x) sum(x > 2) > (0.2*length(x)), TRUE)
+ps_common
+```
+
+Devide the abundance of each microbial ASV by the host gene copy number. Now microbial genes are reported as ratios to host, rather than counts.
+This process adjusts for compositionality.
+
+Normalize microibal counts to oyster counts
+
+```{r}
+ps_oyster <- ps_dds %>% subset_taxa(Order == "Ostreoida")
+ps_not_oyster <- ps_common %>% subset_taxa(Order != "Ostreoida") # ok if not common, so just using dds
+oyster_sums <- otu_table(ps_oyster)@.Data %>% apply(MARGIN = 2, sum)
+not_oyster_counts <- otu_table(ps_not_oyster)@.Data
+
+over_oyster <- sweep(not_oyster_counts, 2, oyster_sums, "/")
+# so this suddently contains zeros, making everything fail, but it didn't used to. What gives?
+over_oyster_log10 <- log10(over_oyster)
+(detection_thresh <- min(na.omit(over_oyster[over_oyster > 0])))
+over_oyster_log10 <- log10(over_oyster + detection_thresh)
+
+ps_oo <- ps_not_oyster
+otu_table(ps_oo) <- otu_table(over_oyster, taxa_are_rows = TRUE)
+ps_oo <- subset_samples(ps_oo, (SampleID %in% c(names(oyster_sums[oyster_sums > 0])))) # remove cases
+
+ps_oo_log <- ps_not_oyster
+otu_table(ps_oo_log) <- otu_table(over_oyster_log10, taxa_are_rows = TRUE)
+
+ps_oo_log_ss <- subset_samples(ps_oo_log, !(Project =="Mock"& Strain == "Even" & Run == "NoCrash"))
+ps_oo_ss <- subset_samples(ps_oo, !(Project =="Mock"& Strain == "Even" & Run == "NoCrash"))
+```
+
+# Make the one figure for the paper
+
+## A function I use
+converts phyloseq sample data to a data frame
+```{r}
+samd_to_df <- function(samd){
+  df <- samd %>% sample_data %>% .@.Data %>% lapply(as.character) %>% data.frame
+  colnames(df) <- samd@names
+  rownames(df) <- samd@row.names
+  df
+}
+```
+
+## Actually run the RDA
+Redundancy analysis (RDA) is an ordination approach that allows us to look at how the microbial community as a whole varies across our variables of interest.
+```{r}
+
+ps_oo_log_ss1 <- ps_oo_log_ss %>% subset_samples(((Run =="NoCrash" & Project == "NoCrash") | (Run == "Crash4" & Project == "Crash")) & Treatment %in% c("Fed", "Starve", "Pre"))
+
+test_rda <- rda(t(otu_table(ps_oo_log_ss1)) ~ Project + as.factor(Strain == "Wild") + as.factor(Treatment == "Fed"), data = samd_to_df(sample_data(ps_oo_log_ss1)))
+test_rda
+test_rda_anova <- anova(test_rda, by = "margin", permutations = how(nperm = 99999))
+test_rda_anova
+myScores <- scores(test_rda, choices = c(1:4), scaling = "symmetric")
+```
+
+## Post procesing of RDA
+
+### Sample Data
+```{r}
+mySamples <- left_join(
+myScores$sites %>% data.frame %>% rownames_to_column("Sample"),
+ps_oo_log_ss1 %>% sample_data() %>% samd_to_df %>% rownames_to_column("Sample"),
+by = "Sample"
+)
+```
+
+### Percent variance explained
+```{r}
+eigsum <- sum(c(test_rda$CCA$eig, test_rda$CA$eig))
+cca_eig <- test_rda$CCA$eig / eigsum
+ca_eig <- test_rda$CA$eig / eigsum
+all_eig <- c(cca_eig, ca_eig)
+all_eig["RDA1"] 
+```
+
+```{r}
+rda_eig_pct <- data.frame(all_eig) %>% rownames_to_column("Ax") %>% dplyr::rename(EigPct = "all_eig") %>%
+  mutate(Axis2 = ordered(Ax, levels = Ax))
+rda_eig_pct
+```
+
+### Species
+Select which species we will show in the figure, targeting ones that are far from 0, 0.
+```{r}
+mySpecies <- left_join(
+  myScores$species %>% data.frame %>% rownames_to_column("ASV"),
+ps_oo_log_ss1 %>% tax_table() %>% .@.Data %>% as.data.frame %>% rownames_to_column("ASV")
+) %>% mutate(RDADist = sqrt(RDA1^2 + RDA2^2 + RDA3 ^2)) %>% 
+  arrange(-RDADist) %>%
+  head(10) %>%
+  mutate(Rank = 1:10)
+```
+
+## Calculate Centroids
+Centroids tell us about the different treatment types and how they relate to the samples and species.
+```{r}
+myCent <- myScores$centroids %>% data.frame %>% rownames_to_column("Treatment") %>%
+  tidyr::extract(Treatment, c("Type", "Condition"), "([A-Z][a-z]+)([A-Z].*)",  remove = FALSE) %>%
+  mutate(Type = if_else(str_detect(Treatment, "Wild"), "Strain", Type)) %>%
+  mutate(Condition = if_else(Type == "Strain" & str_detect(Treatment, "FALSE"), "Tame", Condition)) %>%
+  mutate(Condition = if_else(Type == "Strain" & str_detect(Treatment, "TRUE"), "Wild", Condition)) %>%
+  mutate(Type = if_else(str_detect(Treatment, "Fed"), "Feeding", Type)) %>%
+  mutate(Condition = if_else(Type == "Feeding" & str_detect(Treatment, "FALSE"), "StarvedOrPre", Condition)) %>%
+  mutate(Condition = if_else(Type == "Feeding" & str_detect(Treatment, "TRUE"), "Fed", Condition))
+
+myCent2 <- myCent %>% filter((Condition %in% c("Fed", "Wild", "Crash")))
+```
+
+### Main Figure
+This actually plots the main figure, using ggplot
+```{r}
+ccaPlot_1V2_A0 <- mySamples %>% ggplot(aes(x = RDA1, y = RDA2)) + # negative because at some point in the analysis the RDA spontaneously flipped and sign dosn't actually matter
+  geom_point(size = 3, stroke = 3, aes(shape = Project, color = Strain == "Wild", fill = Treatment), alpha = 1) +
+  scale_shape_manual(values = c(22,21)) + scale_color_manual(values = c("gray40", "black")) + scale_fill_manual(values = c(Fed = "Blue", Pre = "DarkGreen", Starve = "Orange"))+
+  geom_point(data = mySpecies, size = 4, shape = "+") + 
+  ggrepel::geom_text_repel(data = mySpecies, aes(label = JName) , size = 3) +
+  guides(fill = guide_legend(override.aes = list(shape = 21)), color = guide_legend(override.aes = list(shape = 21))) +
+  theme(legend.position = "bottom")
+
+ccaPlot_1V2_A <- ccaPlot_1V2_A0  + scale_fill_manual(values = c(Fed = "Blue", Pre = "DarkGreen", Starve = "Orange", Crash = "Pink", NoCrash = "White", Wild = "White"))
+
+ccaLegend <- get_legend(ccaPlot_1V2_A0)
+
+ccaPlot_1V2_B <- ccaPlot_1V2_A +
+  geom_label(data = myCent2, aes(label = Condition, x = RDA1 * 1.75, y = RDA2 * 2, fill = Condition) , size = 5) +
+  geom_segment(data = myCent2, aes(x = 0, y = 0, xend = RDA1 * 2.5, yend = RDA2 * 2.5), arrow = arrow(length = unit(0.1, "in")), alpha = 0.5, size = 1) +
+  coord_fixed(sqrt(test_rda$CCA$eig[2]/test_rda$CCA$eig[1])) +
+  labs(x = paste0("RDA1", " (", scales::percent(all_eig["RDA1"]), ")"),
+       y = paste0("RDA2", " (", scales::percent(all_eig["RDA2"]), ")")
+       ) +
+  cowplot::theme_cowplot() + theme(legend.position = "none")
+
+#plot_grid(ccaPlot_1V2_B, ccaLegend)
+ProtoNewFig <- plot_grid(ccaPlot_1V2_B, ccaLegend, nrow = 2, rel_heights = c(10,1))
+ggsave("Figures/ProtoNewFig.svg", ProtoNewFig, width = 8, height = 6)
+```
+
+### View Main Figure
+
+The main figure is an .svg file, but here is a draft view for this workbook.
+```{r}
+ProtoNewFig
+```
+
+I'm not sure why "NoCrash" and "Wild" showed up in the legend. It didn't used to do that, but I'm not going to bother to correct this right now.
+GGplot upgrade
+
+## Black and white version
+
+### Main Figure
+
+This actually plots the main figure, using ggplot
+
+```{r}
+ccaPlot_1V2_A0 <- mySamples %>% ggplot(aes(x = RDA1, y = RDA2)) + # negative because at some point in the analysis the RDA spontaneously flipped and sign dosn't actually matter
+  geom_point(size = 3, stroke = 3, aes(shape = Project, color = Strain == "Wild", fill = Treatment), alpha = 1) +
+  scale_shape_manual(values = c(Crash = 21, NoCrash = 22)) + scale_color_manual(values = c("gray40", "black")) + scale_fill_manual(values = c(Fed = "White", Pre = "Grey", Starve = "Black"))+
+  geom_point(data = mySpecies, size = 4, shape = "+") + 
+  ggrepel::geom_text_repel(data = mySpecies, aes(label = JName) , size = 3) +
+  guides(fill = guide_legend(override.aes = list(shape = 21)), color = guide_legend(override.aes = list(shape = 21))) +
+  theme(legend.position = "bottom")
+
+ccaPlot_1V2_A <- ccaPlot_1V2_A0  + scale_fill_manual(values = c(Fed = "White", Pre = "Grey", Starve = "Black", Crash = "White", NoCrash = "White", Wild = "White"))
+
+ccaLegend <- get_legend(ccaPlot_1V2_A0)
+
+ccaPlot_1V2_B <- ccaPlot_1V2_A +
+  geom_text(data = myCent2, aes(label = Condition, x = RDA1 * 1.75, y = RDA2 * 2, fill = Condition) , size = 5) +
+  geom_segment(data = myCent2, aes(x = 0, y = 0, xend = RDA1 * 1.5, yend = RDA2 * 1.75), arrow = arrow(length = unit(0.1, "in")), alpha = 0.5, size = 1) +
+  coord_fixed(sqrt(test_rda$CCA$eig[2]/test_rda$CCA$eig[1])) +
+  labs(x = paste0("RDA1", " (", scales::percent(all_eig["RDA1"]), ")"),
+       y = paste0("RDA2", " (", scales::percent(all_eig["RDA2"]), ")")
+       ) +
+  cowplot::theme_cowplot() + theme(legend.position = "none")
+
+#plot_grid(ccaPlot_1V2_B, ccaLegend)
+ProtoNewFigBW <- plot_grid(ccaPlot_1V2_B, ccaLegend, nrow = 2, rel_heights = c(10,1))
+ggsave("Figures/ProtoNewFigBW.svg", ProtoNewFigBW, width = 8, height = 6)
+```
+
+```{r}
+ProtoNewFigBW
+```
+
+
+# Seeing which species relate to crash vs non-crash
+We don't show these figures in the paper, but we do refer to them.
+
+## Initial data wrangling
+
+```{r}
+ps_oo_log_ss2 <- ps_oo_log_ss1
+sample_data(ps_oo_log_ss2) <-  mySamples %>% column_to_rownames("Sample") %>% sample_data()
+```
+
+Reshaping to long takes a little while. (~ 20 seconds)
+```{r}
+melt_oo_log_ss2 <- psmelt(ps_oo_log_ss2)
+```
+
+```{r}
+melt2_oo_log_ss2 <- melt_oo_log_ss2 %>%
+  mutate(logAbundance = Abundance) %>%
+  mutate(Abundance = 10^(Abundance))
+melt2_oo_log_ss2 <- melt2_oo_log_ss2 %>% left_join(mySpecies %>% select(RDA1.Spec = RDA1, JName), by = "JName")
+melt2_oo_log_ss2 %>% head
+```
+
+## Stuff
+
+Run an lme to see if each microbe is related to project, holding out treatment as a mixed effect.
+
+```{r}
+modframe <- melt2_oo_log_ss2 %>% select(Project:Group, logAbundance, Kingdom:Genus, JName ) %>% group_by(JName) %>% nest(data = Project:logAbundance) %>%
+  #mutate(mod = map(data, ~tidy(lm(data = ., logAbundance ~ Project)))) %>%
+  mutate(lme = map(data, ~tidy(lmer(data = ., logAbundance ~ Project + (1|Treatment) + (1|Strain)))))
+```
+Ignore the many warning messages, and don't ask me what they mean.
+
+And visualize the results
+```{r}
+modframe01 <- modframe %>% unnest(lme) %>% filter(term == "ProjectNoCrash") %>% select(Kingdom:JName, estimate, std.error, p.value) %>% mutate(fdr = p.adjust(p.value, method = "BH"))
+```
+
+```{r}
+ggplotly(
+ggplot(modframe01, aes(x = estimate, y = log10(p.value),  color = Kingdom, JName = JName)) + geom_point() + 
+  scale_color_manual(values = c(Bacteria = "Gray10", Eukaryota = "blue", Archaea = "red")) +
+  geom_hline(aes(yintercept = log10(0.01)))
+)
+```
+
+Figure 2. Not shown int the paper. Estimate is the size of the coefficint in a linear model. log10 P value tells about significance. 
+
+Everything below the line is statistically significant. Mouse over the dots to see which bacteria are which. If plotly is giving you problems, comment out the `ggplotly` bits and this shows up as a normal plot. But then you can't mouse over poitns.
+
+How many significant and non significant ASVs are there?
+
+```{r}
+modframe01 %>% ungroup %>% summarise(signif = sum(p.value < 0.01), total = length(p.value)) %>% mutate(frachits = signif/total) 
+```
+63 % of the asvs are related to treatment p < 0.01.
+
+# Session Info Dump
+
+```{r}
+sessionInfo()
+```

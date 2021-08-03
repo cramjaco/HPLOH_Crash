@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Black and white version
+
+### Main Figure
+
+This actually plots the main figure, using ggplot
+```{r}
+ccaPlot_1V2_A0 <- mySamples %>% ggplot(aes(x = RDA1, y = RDA2)) + # negative because at some point in the analysis the RDA spontaneously flipped and sign dosn't actually matter
+  geom_point(size = 3, stroke = 3, aes(shape = Project, color = Strain == "Wild", fill = Treatment), alpha = 1) +
+  scale_shape_manual(values = c(Crash = 21, NoCrash = 22)) + scale_color_manual(values = c("gray40", "black")) + scale_fill_manual(values = c(Fed = "White", Pre = "Grey", Starve = "Black"))+
+  geom_point(data = mySpecies, size = 4, shape = "+") + 
+  ggrepel::geom_text_repel(data = mySpecies, aes(label = JName) , size = 3) +
+  guides(fill = guide_legend(override.aes = list(shape = 21)), color = guide_legend(override.aes = list(shape = 21))) +
+  theme(legend.position = "bottom")
+
+ccaPlot_1V2_A <- ccaPlot_1V2_A0  + scale_fill_manual(values = c(Fed = "White", Pre = "Grey", Starve = "Black", Crash = "White", NoCrash = "White", Wild = "White"))
+
+ccaLegend <- get_legend(ccaPlot_1V2_A0)
+
+ccaPlot_1V2_B <- ccaPlot_1V2_A +
+  geom_text(data = myCent2, aes(label = Condition, x = RDA1 * 1.75, y = RDA2 * 2, fill = Condition) , size = 5) +
+  geom_segment(data = myCent2, aes(x = 0, y = 0, xend = RDA1 * 1.5, yend = RDA2 * 1.75), arrow = arrow(length = unit(0.1, "in")), alpha = 0.5, size = 1) +
+  coord_fixed(sqrt(test_rda$CCA$eig[2]/test_rda$CCA$eig[1])) +
+  labs(x = paste0("RDA1", " (", scales::percent(all_eig["RDA1"]), ")"),
+       y = paste0("RDA2", " (", scales::percent(all_eig["RDA2"]), ")")
+       ) +
+  cowplot::theme_cowplot() + theme(legend.position = "none")
+
+#plot_grid(ccaPlot_1V2_B, ccaLegend)
+ProtoNewFigBW <- plot_grid(ccaPlot_1V2_B, ccaLegend, nrow = 2, rel_heights = c(10,1))
+ggsave("Figures/ProtoNewFigBW.svg", ProtoNewFigBW, width = 8, height = 6)
+```
+
+```{r}
+ProtoNewFigBW
+```
+
+
+### View Main Figure
+
+The main figure is an .svg file, but here is a draft view for this workbook.
+```{r}
+ProtoNewFig
+```

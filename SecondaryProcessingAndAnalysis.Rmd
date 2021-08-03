@@ -260,6 +260,7 @@ GGplot upgrade
 ### Main Figure
 
 This actually plots the main figure, using ggplot
+
 ```{r}
 ccaPlot_1V2_A0 <- mySamples %>% ggplot(aes(x = RDA1, y = RDA2)) + # negative because at some point in the analysis the RDA spontaneously flipped and sign dosn't actually matter
   geom_point(size = 3, stroke = 3, aes(shape = Project, color = Strain == "Wild", fill = Treatment), alpha = 1) +
@@ -291,13 +292,6 @@ ggsave("Figures/ProtoNewFigBW.svg", ProtoNewFigBW, width = 8, height = 6)
 ProtoNewFigBW
 ```
 
-
-### View Main Figure
-
-The main figure is an .svg file, but here is a draft view for this workbook.
-```{r}
-ProtoNewFig
-```
 
 # Seeing which species relate to crash vs non-crash
 We don't show these figures in the paper, but we do refer to them.
